@@ -3,7 +3,7 @@ import LanguageServerProtocol
 
 public struct BuildTarget: Codable, Sendable {
     public typealias Tag = String
-    public struct Identifier: Codable, Sendable {
+    public struct Identifier: Codable, Hashable, Sendable {
         public let uri: URL 
     }
 
@@ -32,3 +32,11 @@ extension BuildTarget.Tag {
   public static let noIde = "no-ide"
   public static let test = "test"
 }
+
+public enum StatusCode: Int, Codable, Hashable, Sendable {
+    case ok = 1
+    case error
+    case canceled
+}   
+
+public typealias EnvironmentVariable = [String: String]
