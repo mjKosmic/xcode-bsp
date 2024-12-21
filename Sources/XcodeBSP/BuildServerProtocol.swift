@@ -10,14 +10,15 @@ public enum ClientEvent: Sendable {
 	// case error(ClientError)
 }
 
-// public enum ServerEvent: Sendable {
-// 	public typealias RequestResult = Result<Encodable & Sendable, AnyJSONRPCResponseError>
-// 	public typealias RequestHandler = @Sendable (RequestResult) async -> Void
-//
-// 	case request(id: JSONId, request: ServerRequest)
-// 	case notification(ServerNotification)
-// 	case error(Error)
-// 	// case error(ServerError)
-// }
+public enum ServerEvent: Sendable {
+	public typealias RequestResult = Result<Encodable & Sendable, AnyJSONRPCResponseError>
+	public typealias RequestHandler = @Sendable (RequestResult) async -> Void
+
+	// BSP does not contain any Server -> Client requests
+	// case request(id: JSONId, request: ServerRequest)
+	case notification(ServerNotification)
+	case error(Error)
+	// case error(ServerError)
+}
 
 

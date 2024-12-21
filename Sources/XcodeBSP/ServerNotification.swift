@@ -1,6 +1,6 @@
 
 
-public enum ServerNotifciation: Sendable {
+public enum ServerNotification: Sendable {
 	public enum Method: String, Hashable, Sendable {
 		case showMessage = "build/showMessage"
 		case logMessage =  "build/logMessage"
@@ -17,7 +17,7 @@ public enum ServerNotifciation: Sendable {
 	case showMessage(Build.ShowMessage.Params)
 	case logMessage(Build.LogMessage.Params)
 	case publishDiagnostics(Build.Diagnostics.Publish.Params)
-	case targetDidChange
+	case targetDidChange(Build.Target.Event)
 	case taskStart(Build.Task.Start.Params)
 	case taskProgress(Build.Task.Progress.Params)
 	case taskFinish(Build.Task.Finish.Params)

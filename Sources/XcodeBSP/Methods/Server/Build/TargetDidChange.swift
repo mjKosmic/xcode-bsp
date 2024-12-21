@@ -3,7 +3,7 @@ import LanguageServerProtocol
 
 
 public extension Build.Target {
-    struct Event {
+    struct Event: Codable, Sendable {
         public enum Kind: Int, Codable, Hashable, Sendable {
             case created = 1
             case changed
