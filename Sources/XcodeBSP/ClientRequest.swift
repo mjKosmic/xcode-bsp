@@ -1,16 +1,6 @@
 import LanguageServerProtocol
 import JSONRPC
 
-
-
-public enum ClientNotification: Sendable {
-    public enum Method: String, Hashable, Sendable {
-        case initialized = "build/initialized"
-        case exit = "build/exit"
-        case runReadStdin = "run/readStdin"
-    }
-}
-
 public enum ClientRequest: Sendable {
     public typealias Handler<T: Sendable & Encodable> = @Sendable (Result<T, AnyJSONRPCResponseError>) async -> Void
     public typealias ErrorOnlyHandler = @Sendable(AnyJSONRPCResponseError?) async -> Void
@@ -29,58 +19,58 @@ public enum ClientRequest: Sendable {
         case buildTargetCompile = "buildTarget/compile"
         case buildTargetRun = "buildTarget/run"
         case buildTargetTest = "buildTarget/test"
-        case debugSessionStart = "debugSession/start"
         case buildTargetCleanCache = "buildTarget/cleanCache"
+        case debugSessionStart = "debugSession/start"
     }
 
-    case initialize(InitializeBuildParams, Handler<InitializeBuildResult>)
-    case shutdown
-    case workspaceBuildTargets
-    case workspaceReload
-    case buildTargetSources
-    case buildTargetInverseSources
-    case buildTargetDependencySources
-    case buildTargetDependencyModules
-    case buildTargetResources
-    case buildTargetOutputPaths
-    case buildTargetCompile
-    case buildTargetRun
-    case buildTargetTest
-    case debugSessionStart
-    case buildTargetCleanCache
+    case initialize(Initialize.Params, Handler<Initialize.Result>)
+    case shutdown(Handler<LSPAny?>)
+    case workspaceBuildTargets(Handler<Workspace.BuildTargets.Result>)
+    case workspaceReload(Handler<LSPAny?>)
+    case buildTargetSources(Build.Target.Sources.Params, Handler<Build.Target.Sources.Result>)
+    case buildTargetInverseSources(Build.Target.InverseSources.Params, Handler<Build.Target.InverseSources.Result>)
+    case buildTargetDependencySources(Build.Target.DependencySources.Params, Handler<Build.Target.DependencySources.Result>)
+    case buildTargetDependencyModules(Build.Target.DependencyModules.Params, Handler<Build.Target.DependencyModules.Result>)
+    case buildTargetResources(Build.Target.Resources.Params, Handler<Build.Target.Resources.Result>)
+    case buildTargetOutputPaths(Build.Target.OutputPaths.Params, Handler<Build.Target.OutputPaths.Result>)
+    case buildTargetCompile(Build.Target.Compile.Params, Handler<Build.Target.Compile.Result>)
+    case buildTargetRun(Build.Target.Run.Params, Handler<Build.Target.Run.Result>)
+    case buildTargetTest(Build.Target.Test.Params, Handler<Build.Target.Test.Result>)
+    case buildTargetCleanCache(Build.Target.CleanCache.Params, Handler<Build.Target.CleanCache.Result>)
+    case debugSessionStart(DebugSession.Start.Params, Handler<DebugSession.SessionAddress>)
 
     public var method: Method {
         switch self {
         case .initialize: 
             return .initialize
         case .shutdown:
-			return .shutdown
+            return .shutdown
         case .workspaceBuildTargets:
-			return .workspaceBuildTargets
+            return .workspaceBuildTargets
         case .workspaceReload:
-			return .workspaceReload
+            return .workspaceReload
         case .buildTargetSources:
-			return .buildTargetSources
+            return .buildTargetSources
         case .buildTargetInverseSources:
-			return .buildTargetInverseSources
+            return .buildTargetInverseSources
         case .buildTargetDependencySources:
-			return .buildTargetDependencySources
+            return .buildTargetDependencySources
         case .buildTargetDependencyModules:
-			return .buildTargetDependencyModules
+            return .buildTargetDependencyModules
         case .buildTargetResources:
-			return .buildTargetResources
+            return .buildTargetResources
         case .buildTargetOutputPaths:
-			return .buildTargetOutputPaths
+            return .buildTargetOutputPaths
         case .buildTargetCompile:
-			return .buildTargetCompile
+            return .buildTargetCompile
         case .buildTargetRun:
-			return .buildTargetRun
+            return .buildTargetRun
         case .buildTargetTest:
-			return .buildTargetTest
-        case .debugSessionStart:
-			return .debugSessionStart
+            return .buildTargetTest
         case .buildTargetCleanCache:
-			return .buildTargetCleanCache
+            return .buildTargetCleanCache
+        case .debugSessionStart:
+            return .debugSessionStart
         }
     }
 }

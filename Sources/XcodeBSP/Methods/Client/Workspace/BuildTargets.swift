@@ -5,7 +5,7 @@ import JSONRPC
 public extension Workspace {
     struct BuildTargets {
         public struct Result: Codable, Sendable {
-            public let targets: [BuildTarget]
+            public let targets: [Build.Target]
         }
     }
 }

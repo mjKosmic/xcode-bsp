@@ -2,7 +2,7 @@ import Foundation
 import LanguageServerProtocol
 import JSONRPC
 
-public extension BuildTarget {
+public extension Build.Target {
     struct Source {
         public struct Item: Codable, Sendable {
             public enum Kind: Int, Codable, Sendable {
@@ -26,12 +26,12 @@ public extension BuildTarget {
 
     struct Sources {
         public struct Item: Codable, Sendable {
-            public let target: BuildTarget.Identifier
+            public let target: Build.Target.Identifier
             public let sources: [Source.Item]
             public let roots: URL?
         }
         public struct Params: Codable, Hashable, Sendable {
-            public let targets: [BuildTarget.Identifier]
+            public let targets: [Build.Target.Identifier]
         }
         public struct Result: Codable, Sendable {
             public let  items: [Sources.Item]

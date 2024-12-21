@@ -2,15 +2,15 @@ import Foundation
 import LanguageServerProtocol
 import JSONRPC
 
-public extension BuildTarget {
+public extension Build.Target {
     struct DependencySources {
         public struct Item: Codable, Sendable {
-            public let target: BuildTarget.Identifier
+            public let target: Build.Target.Identifier
             public let sources: [URL]
         }
 
         public struct Params: Codable, Hashable, Sendable {
-            public let targets: [BuildTarget.Identifier]
+            public let targets: [Build.Target.Identifier]
         }
 
         public struct Result: Codable, Sendable {

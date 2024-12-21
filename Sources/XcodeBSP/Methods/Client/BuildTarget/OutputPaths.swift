@@ -3,7 +3,7 @@ import LanguageServerProtocol
 import JSONRPC
 
 
-public extension BuildTarget {
+public extension Build.Target {
     struct OutputPath {
         public struct Item: Codable, Hashable, Sendable {
             public enum Kind: Int, Codable, Hashable, Sendable {
@@ -17,11 +17,11 @@ public extension BuildTarget {
     }
     struct OutputPaths {
         public struct Item: Codable, Hashable, Sendable {
-            public let target: BuildTarget.Identifier
+            public let target: Build.Target.Identifier
             public let outputPaths: [OutputPath.Item]
         }
         public struct Params: Codable, Hashable, Sendable {
-            public let targets: [BuildTarget.Identifier]
+            public let targets: [Build.Target.Identifier]
         }
 
         public struct Result: Codable, Sendable {

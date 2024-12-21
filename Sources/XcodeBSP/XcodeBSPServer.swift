@@ -21,7 +21,7 @@ actor XcodeBSPServer {
     func handleRequest(_ request: ClientRequest, _ handler: JSONRPCEvent.RequestHandler, _ data: Data) {
         logger.info("handling request")
         switch request.method {
-            case .buildInitialize: 
+            case .initialize: 
                 do {
                 logger.info("initializing...")
                 // try self.sendMessage(message)

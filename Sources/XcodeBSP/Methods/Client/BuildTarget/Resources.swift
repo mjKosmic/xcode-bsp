@@ -3,10 +3,10 @@ import JSONRPC
 import Foundation
 
 
-public extension BuildTarget {
+public extension Build.Target {
     public struct Resources {
         public struct Item: Codable, Hashable, Sendable {
-            public let target: BuildTarget.Identifier
+            public let target: Build.Target.Identifier
             public let resources: [URL]
         }
 
@@ -15,7 +15,7 @@ public extension BuildTarget {
         }
 
         public struct Params: Codable, Hashable, Sendable {
-            public let targets: [BuildTarget.Identifier]
+            public let targets: [Build.Target.Identifier]
         }
     }
 }

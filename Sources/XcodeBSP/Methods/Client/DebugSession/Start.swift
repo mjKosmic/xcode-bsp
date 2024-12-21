@@ -2,10 +2,10 @@ import Foundation
 import LanguageServerProtocol
 import JSONRPC
 
-public extension DebugSesson {
+public extension DebugSession {
     struct Start {
         public struct Params: Codable, Hashable, Sendable {
-            public let targets: [BuildTarget.Identifier]
+            public let targets: [Build.Target.Identifier]
             //data
             //datakind
         }

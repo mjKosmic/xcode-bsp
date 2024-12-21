@@ -2,14 +2,14 @@ import Foundation
 import LanguageServerProtocol
 import JSONRPC
 
-public extension BuildTarget {
+public extension Build.Target {
     struct InverseSources { 
         public struct Params: Codable, Hashable, Sendable {
             public let textDocument: TextDocumentIdentifier
         }
 
         public struct Result: Codable, Sendable {
-            public let targets: [BuildTarget.Identifier]
+            public let targets: [Build.Target.Identifier]
         }
     }
 }

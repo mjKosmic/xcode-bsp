@@ -16,17 +16,17 @@ public protocol EventHandler: ErrorHandler {
     func shutdown(id: JSONId) async
     func workspaceBuildTargets(id: JSONId) async -> Response<Workspace.BuildTargets.Result>
     func workspaceReload(id: JSONId) async -> Response<AnyJSONRPCResponseError?>
-    func buildTargetSources(id: JSONId, params: BuildTarget.Sources.Params) async -> Response<BuildTarget.Sources.Result>
-    func buildTargetInverseSources(id: JSONId, params: BuildTarget.InverseSources.Params) async -> Response<BuildTarget.InverseSources.Result>
-    func buildTargetDependencySources(id: JSONId, params: BuildTarget.DependencySources.Params) async -> Response<BuildTarget.DependencySources.Result>
-    func buildTargetDependencyModules(id: JSONId, params: BuildTarget.DependencyModules.Params) async -> Response<BuildTarget.DependencyModules.Result>
-    func buildTargetResources(id: JSONId, params: BuildTarget.Resources.Params) async -> Response<BuildTarget.Resources.Result>
-    func buildTargetOutputPaths(id: JSONId, params: BuildTarget.OutputPaths.Params) async -> Response<BuildTarget.OutputPaths.Result>
-    func buildTargetCompile(id: JSONId, params: BuildTarget.Compile.Params) async -> Response<BuildTarget.Compile.Result>
-    func buildTargetRun(id: JSONId, params: BuildTarget.Run.Params) async -> Response<BuildTarget.Run.Result>
-    func buildTargetTest(id: JSONId, params: BuildTarget.Test.Params) async -> Response<BuildTarget.Test.Result>
-    func buildTargetCleanCache(id: JSONId, params: BuildTarget.CleanCache.Params) async -> Response<BuildTarget.CleanCache.Result>
-    func debugSessionStart(id: JSONId, params: DebugSesson.Start.Params) async -> Response<DebugSesson.SessionAddress>
+    func buildTargetSources(id: JSONId, params: Build.Target.Sources.Params) async -> Response<Build.Target.Sources.Result>
+    func buildTargetInverseSources(id: JSONId, params: Build.Target.InverseSources.Params) async -> Response<Build.Target.InverseSources.Result>
+    func buildTargetDependencySources(id: JSONId, params: Build.Target.DependencySources.Params) async -> Response<Build.Target.DependencySources.Result>
+    func buildTargetDependencyModules(id: JSONId, params: Build.Target.DependencyModules.Params) async -> Response<Build.Target.DependencyModules.Result>
+    func buildTargetResources(id: JSONId, params: Build.Target.Resources.Params) async -> Response<Build.Target.Resources.Result>
+    func buildTargetOutputPaths(id: JSONId, params: Build.Target.OutputPaths.Params) async -> Response<Build.Target.OutputPaths.Result>
+    func buildTargetCompile(id: JSONId, params: Build.Target.Compile.Params) async -> Response<Build.Target.Compile.Result>
+    func buildTargetRun(id: JSONId, params: Build.Target.Run.Params) async -> Response<Build.Target.Run.Result>
+    func buildTargetTest(id: JSONId, params: Build.Target.Test.Params) async -> Response<Build.Target.Test.Result>
+    func buildTargetCleanCache(id: JSONId, params: Build.Target.CleanCache.Params) async -> Response<Build.Target.CleanCache.Result>
+    func debugSessionStart(id: JSONId, params: DebugSession.Start.Params) async -> Response<DebugSession.SessionAddress>
 }
 
 
