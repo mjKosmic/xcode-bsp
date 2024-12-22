@@ -15,6 +15,8 @@ public enum ClientNotification: Sendable {
                 return .initialized
             case .exit:
                 return .exit
+            // case .runReadStdin:
+            //     return .runReadStdin
         }
     }
 }

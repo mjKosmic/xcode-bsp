@@ -1,6 +1,7 @@
 import JSONRPC
 import LanguageServerProtocol
 import Foundation
+import OSLog
 
 public actor JSONRPCClientConnection: ClientConnection {
 	public let eventSequence: EventSequence
@@ -10,33 +11,35 @@ public actor JSONRPCClientConnection: ClientConnection {
 
 	/// NOTE: The channel will wrapped with message framing
 	public init(_ dataChannel: DataChannel) {
-		self.session = JSONRPCSession(channel: dataChannel.withMessageFraming())
+	    self.session = JSONRPCSession(channel: dataChannel.withMessageFraming())
 
-		(self.eventSequence, self.eventContinuation) = EventSequence.makeStream()
+	    (self.eventSequence, self.eventContinuation) = EventSequence.makeStream()
 
-		Task {
-			await startMonitoringSession()
-		}
+	    Task {  
+            await startMonitoringSession()
+	    }
 	}
 
 	deinit {
-		eventContinuation.finish()
+        eventContinuation.finish()
 	}
 
 	private func startMonitoringSession() async {
-		let seq = await session.eventSequence
-
-		for await event in seq {
-
-			switch event {
-			case let .notification(notification, data):
-				self.handleNotification(notification, data: data)
-			case let .request(request, handler, data):
-				self.handleRequest(request, data: data, handler: handler)
-			case let .error(error):
-				self.handleError(error)
-			}
-		}
+        Logger.bsp.debug("Starting JSONRPC session monitor...")
+        let seq = await session.eventSequence
+        for await event in seq {
+            switch event {
+                case let .notification(notification, data):
+                    Logger.bsp.debug("Recieved JSONRPC notification: \(notification.method, privacy: .public)")
+                    self.handleNotification(notification, data: data)
+                case let .request(request, handler, data):
+                    Logger.bsp.debug("Recieved JSONRPC request: \(request.method, privacy: .public)")
+                    self.handleRequest(request, data: data, handler: handler)
+                case let .error(error):
+                    Logger.bsp.debug("Recieved JSONRPC error: \(error, privacy: .public)")
+                    self.handleError(error)
+            }
+	    }
 
 		eventContinuation.finish()
 	}
@@ -190,5 +193,10 @@ public actor JSONRPCClientConnection: ClientConnection {
 			break
 		}
 	}
+
+    //just for protocol adherence. BSP doesn't currently support Server -> Client requests
+    public func sendRequest<Response>(_ request: ServerRequest) async throws -> Response where Response : Decodable, Response : Sendable {
+        throw ProtocolError.unrecognizedMethod(request.method.rawValue)
+    }
 }
 
