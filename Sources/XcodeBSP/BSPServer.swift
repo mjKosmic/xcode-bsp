@@ -29,7 +29,31 @@ public actor BSPServer {
     var xcodeProjPath: URL?
     var projectBuildLogFolder: String?
     var activityLog: IDEActivityLog?
-    var buildTargets: [PBXNativeTarget] = []
+    private var nativeBuildTargets: [PBXNativeTarget] = []
+    var buildTargets: [Build.Target] {
+        var targets: [Build.Target] = []
+        for nativeTarget in nativeBuildTargets {
+            let target: Build.Target = .init(
+                id: .init(uri: "bsp://\(nativeTarget.uuid)"),
+                displayName: nativeTarget.name,
+                baseDirectory: nil,
+                tags: [],
+                languageIds: [.swift],
+                dependencies: nativeTarget.dependencies.flatMap { dependency in
+                    if let uuid = dependency.target?.uuid { 
+                        return .init(uri: "bsp://\(uuid)") 
+                    }
+                    return nil
+                },
+                capabilities: []
+            )
+
+            Logger.bsp.debug("Build Target: \n\tID: \(target.id.uri, privacy: .public)\n\tName: \(target.displayName ?? "nil", privacy: .public)")
+            targets.append(target)
+        }
+
+        return targets
+    }
 
     init(_ launchOptions: LaunchOptions) {
         self.launchOptions = launchOptions
@@ -48,7 +72,7 @@ public actor BSPServer {
             Logger.bsp.debug("Found project build log directory: \(self.projectBuildLogFolder ?? "nil", privacy: .public)")
 
             try parseLatestActivityLog()
-            try getBuildTargets()
+            try getNativeBuildTargets()
 
             initialized = true
         } catch let error as XCodeProjError {
@@ -91,13 +115,13 @@ public actor BSPServer {
         self.activityLog = try parser.parseActivityLogInURL(logPathUri, redacted: false, withoutBuildSpecificInformation: false)
     }   
 
-    private func getBuildTargets() throws {
+    private func getNativeBuildTargets() throws {
         Logger.bsp.debug("Getting build targets...")
         guard let rootDir = self.xcodeProjPath else { return }
         let filePath = rootDir.absoluteString.replacing("file://", with: "")
         let xcodeProj: XcodeProj = try .init(pathString: filePath)
         let targets = xcodeProj.pbxproj.nativeTargets
         Logger.bsp.debug("Native build targets found: \(targets.count, privacy: .public)")
-        self.buildTargets = targets
+        self.nativeBuildTargets = targets
     }
 }

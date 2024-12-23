@@ -27,6 +27,7 @@ public protocol RequestHandler: ErrorHandler {
     func buildTargetTest(id: JSONId, params: Build.Target.Test.Params) async -> Response<Build.Target.Test.Result>
     func buildTargetCleanCache(id: JSONId, params: Build.Target.CleanCache.Params) async -> Response<Build.Target.CleanCache.Result>
     func debugSessionStart(id: JSONId, params: DebugSession.Start.Params) async -> Response<DebugSession.SessionAddress>
+    func registerForChanges(id: JSONId, params: TextDocument.RegisterForChanges.Params) async -> Response<VoidResponse>
 }
 
 
@@ -67,6 +68,8 @@ extension RequestHandler {
                 await handler(buildTargetCleanCache(id: id, params: params))
             case .debugSessionStart(let params, let handler):
                 await handler(debugSessionStart(id: id, params: params))
+            case let .registerForChanges(params, handler):
+                await handler(registerForChanges(id: id, params: params))
         }
     }
 }
@@ -90,6 +93,7 @@ public extension RequestHandler {
     func buildTargetTest(id: JSONId, params: Build.Target.Test.Params) async -> Response<Build.Target.Test.Result> { .failure(NotImplementedError) }
     func buildTargetCleanCache(id: JSONId, params: Build.Target.CleanCache.Params) async -> Response<Build.Target.CleanCache.Result> { .failure(NotImplementedError) }
     func debugSessionStart(id: JSONId, params: DebugSession.Start.Params) async -> Response<DebugSession.SessionAddress> { .failure(NotImplementedError) }
+    func registerForChanges(id: JSONId, params: TextDocument.RegisterForChanges.Params) async -> Response<VoidResponse> { .success(VoidResponse()) }
 }
 
 

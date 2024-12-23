@@ -21,6 +21,7 @@ public enum ClientRequest: Sendable {
         case buildTargetTest = "buildTarget/test"
         case buildTargetCleanCache = "buildTarget/cleanCache"
         case debugSessionStart = "debugSession/start"
+        case registerForChanges = "textDocument/registerForChanges"
         // case sourceKitOptions = "textDocument/sourceKitOptions"
     }
 
@@ -39,6 +40,7 @@ public enum ClientRequest: Sendable {
     case buildTargetTest(Build.Target.Test.Params, Handler<Build.Target.Test.Result>)
     case buildTargetCleanCache(Build.Target.CleanCache.Params, Handler<Build.Target.CleanCache.Result>)
     case debugSessionStart(DebugSession.Start.Params, Handler<DebugSession.SessionAddress>)
+    case registerForChanges(TextDocument.RegisterForChanges.Params, Handler<VoidResponse>)
 
     public var method: Method {
         switch self {
@@ -72,6 +74,8 @@ public enum ClientRequest: Sendable {
             return .buildTargetCleanCache
         case .debugSessionStart:
             return .debugSessionStart
+        case .registerForChanges:
+            return .registerForChanges
         }
     }
 }

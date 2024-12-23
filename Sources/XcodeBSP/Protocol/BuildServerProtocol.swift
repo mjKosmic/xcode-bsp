@@ -21,4 +21,6 @@ public enum ServerEvent: Sendable {
 	// case error(ServerError)
 }
 
+public struct VoidResponse: Codable, Hashable, Sendable {}
+
 

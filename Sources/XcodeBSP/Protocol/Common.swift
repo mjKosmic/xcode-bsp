@@ -7,7 +7,7 @@ public extension Build {
     struct Target: Codable, Sendable {
         public typealias Tag = String
         public struct Identifier: Codable, Hashable, Sendable {
-            public let uri: URL 
+            public let uri: String
         }
 
         public struct Capabilities: Codable, Sendable {

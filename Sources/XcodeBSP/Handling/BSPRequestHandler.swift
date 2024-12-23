@@ -4,6 +4,7 @@ import Foundation
 import OSLog
 
 public actor BSPRequestHandler: RequestHandler {
+
     public func internalError(_ error: Error) async {
 		Logger.bsp.error("Internal Error: \(error.localizedDescription, privacy: .public)")
 	}
@@ -21,20 +22,28 @@ public actor BSPRequestHandler: RequestHandler {
                         version: XcodeBSPServer.version,
                         bspVersion: XcodeBSPServer.bspVersion,
                         capabilities: BSPServer.capabilities,
-                        dataKind: "sourcekit",
-                        data: nil
+                        dataKind: "sourceKit",
+                        data: .init(
+                            indexStorePath: nil, 
+                            indexDatabasePath: nil, 
+                            prepareProvider: false, 
+                            sourceKitOptionsProvider: true, 
+                            watchers: nil
+                        )
                     )
                     await handler(.success(result))
                 } catch {
                     await handler(.failure(.init(code: 52200, message: "Error initializing BSP server")))
                 }
 
-            case .shutdown(let handler):
-                // await handler(.success(nil))
-                await this.handleRequest(id: id, request: request)
+            case let .shutdown(handler):
+                Logger.bsp.debug("Shutting down build server...")
+                await handler(.success(.null))
+                exit(0)
             case .workspaceBuildTargets(let handler):
-                // await handler(workspaceBuildTargets(id: id))
-                await this.handleRequest(id: id, request: request)
+                Logger.bsp.debug("Fetching workspace build targets")
+                let buildTargets = await BSPServer.shared.buildTargets
+                await handler(.success(.init(targets: buildTargets)))
             case .workspaceReload(let handler):
                 // await handler(.success(nil))
                 await this.handleRequest(id: id, request: request)
@@ -70,6 +79,8 @@ public actor BSPRequestHandler: RequestHandler {
                 await this.handleRequest(id: id, request: request)
             case .debugSessionStart(let params, let handler):
                 // await handler(debugSessionStart(id: id, params: params))
+                await this.handleRequest(id: id, request: request)
+            case let .registerForChanges(params, handler):
                 await this.handleRequest(id: id, request: request)
         }
 	}

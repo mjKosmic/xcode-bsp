@@ -30,10 +30,12 @@ public actor JSONRPCClientConnection: ClientConnection {
         for await event in seq {
             switch event {
                 case let .notification(notification, data):
-                    Logger.bsp.debug("Recieved JSONRPC notification: \(notification.method, privacy: .public)")
+                    let requestString = String(data: data, encoding: .utf8)
+                    Logger.bsp.debug("Recieved JSONRPC notification: \(requestString ?? notification.method, privacy: .public)")
                     self.handleNotification(notification, data: data)
                 case let .request(request, handler, data):
-                    Logger.bsp.debug("Recieved JSONRPC request: \(request.method, privacy: .public)")
+                    let requestString = String(data: data, encoding: .utf8)
+                    Logger.bsp.debug("Recieved JSONRPC request: \(requestString ?? request.method, privacy: .public)")
                     self.handleRequest(request, data: data, handler: handler)
                 case let .error(error):
                     Logger.bsp.debug("Recieved JSONRPC error: \(error, privacy: .public)")
@@ -121,42 +123,44 @@ public actor JSONRPCClientConnection: ClientConnection {
 		let id = anyRequest.id
 
 		do {
-		guard let method = ClientRequest.Method(rawValue: methodName) else {
-			throw ProtocolError.unrecognizedMethod(methodName)
-		}
+            guard let method = ClientRequest.Method(rawValue: methodName) else {
+                throw ProtocolError.unrecognizedMethod(methodName)
+            }
 
-		switch method {
-		case .initialize:
-		    yield(id: id, request: ClientRequest.initialize(try decodeRequestParams(data), makeHandler(handler)))
-		case .shutdown:
-		    yield(id: id, request: ClientRequest.shutdown(makeHandler(handler)))
-		case .workspaceBuildTargets:
-		    yield(id: id, request: ClientRequest.workspaceBuildTargets(makeHandler(handler)))
-		case .workspaceReload:
-		    yield(id: id, request: ClientRequest.workspaceReload(makeHandler(handler)))
-		case .buildTargetSources:
-		    yield(id: id, request: ClientRequest.buildTargetSources(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetInverseSources:
-		    yield(id: id, request: ClientRequest.buildTargetInverseSources(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetDependencySources:
-		    yield(id: id, request: ClientRequest.buildTargetDependencySources(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetDependencyModules:
-		    yield(id: id, request: ClientRequest.buildTargetDependencyModules(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetResources:
-		    yield(id: id, request: ClientRequest.buildTargetResources(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetOutputPaths:
-		    yield(id: id, request: ClientRequest.buildTargetOutputPaths(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetCompile:
-		    yield(id: id, request: ClientRequest.buildTargetCompile(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetRun:
-		    yield(id: id, request: ClientRequest.buildTargetRun(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetTest:
-		    yield(id: id, request: ClientRequest.buildTargetTest(try decodeRequestParams(data), makeHandler(handler)))
-		case .buildTargetCleanCache:
-		    yield(id: id, request: ClientRequest.buildTargetCleanCache(try decodeRequestParams(data), makeHandler(handler)))
-		case .debugSessionStart:
-		    yield(id: id, request: ClientRequest.debugSessionStart(try decodeRequestParams(data), makeHandler(handler)))
-		}
+            switch method {
+            case .initialize:
+                yield(id: id, request: ClientRequest.initialize(try decodeRequestParams(data), makeHandler(handler)))
+            case .shutdown:
+                yield(id: id, request: ClientRequest.shutdown(makeHandler(handler)))
+            case .workspaceBuildTargets:
+                yield(id: id, request: ClientRequest.workspaceBuildTargets(makeHandler(handler)))
+            case .workspaceReload:
+                yield(id: id, request: ClientRequest.workspaceReload(makeHandler(handler)))
+            case .buildTargetSources:
+                yield(id: id, request: ClientRequest.buildTargetSources(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetInverseSources:
+                yield(id: id, request: ClientRequest.buildTargetInverseSources(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetDependencySources:
+                yield(id: id, request: ClientRequest.buildTargetDependencySources(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetDependencyModules:
+                yield(id: id, request: ClientRequest.buildTargetDependencyModules(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetResources:
+                yield(id: id, request: ClientRequest.buildTargetResources(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetOutputPaths:
+                yield(id: id, request: ClientRequest.buildTargetOutputPaths(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetCompile:
+                yield(id: id, request: ClientRequest.buildTargetCompile(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetRun:
+                yield(id: id, request: ClientRequest.buildTargetRun(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetTest:
+                yield(id: id, request: ClientRequest.buildTargetTest(try decodeRequestParams(data), makeHandler(handler)))
+            case .buildTargetCleanCache:
+                yield(id: id, request: ClientRequest.buildTargetCleanCache(try decodeRequestParams(data), makeHandler(handler)))
+            case .debugSessionStart:
+                yield(id: id, request: ClientRequest.debugSessionStart(try decodeRequestParams(data), makeHandler(handler)))
+            case .registerForChanges:
+                yield(id: id, request: ClientRequest.registerForChanges(try decodeRequestParams(data), makeHandler(handler)))
+            }
 			
 		} catch {
 		    eventContinuation.yield(.error(error))
