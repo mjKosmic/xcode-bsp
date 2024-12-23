@@ -14,6 +14,21 @@ public actor BSPRequestHandler: RequestHandler {
             case .initialize(let params, let handler):
                 // await handler(await initialize(id: id, params: params)) 
                 Logger.bsp.info("Initializing XCode BSP server...")
+                do {
+                    try await BSPServer.shared.initialize(params)
+                    let result: Initialize.Result = .init(
+                        displayName: XcodeBSPServer.name,
+                        version: XcodeBSPServer.version,
+                        bspVersion: XcodeBSPServer.bspVersion,
+                        capabilities: BSPServer.capabilities,
+                        dataKind: "sourcekit",
+                        data: nil
+                    )
+                    await handler(.success(result))
+                } catch {
+                    await handler(.failure(.init(code: 52200, message: "Error initializing BSP server")))
+                }
+
             case .shutdown(let handler):
                 // await handler(.success(nil))
                 await this.handleRequest(id: id, request: request)

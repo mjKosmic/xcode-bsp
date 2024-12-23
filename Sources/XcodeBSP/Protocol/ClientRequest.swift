@@ -21,6 +21,7 @@ public enum ClientRequest: Sendable {
         case buildTargetTest = "buildTarget/test"
         case buildTargetCleanCache = "buildTarget/cleanCache"
         case debugSessionStart = "debugSession/start"
+        // case sourceKitOptions = "textDocument/sourceKitOptions"
     }
 
     case initialize(Initialize.Params, Handler<Initialize.Result>)

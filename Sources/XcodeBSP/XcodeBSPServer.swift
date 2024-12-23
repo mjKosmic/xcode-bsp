@@ -1,23 +1,61 @@
-import JSONRPC
+import System
+import ArgumentParser
 import OSLog
-import RegexBuilder
+import Foundation
+import JSONRPC
 import LanguageServerProtocol
 
+struct LaunchOptions {
+    enum ProjectType {
+        case project(scheme: String)
+        case workspace(scheme: String)
+    }
 
-actor XcodeBSPServer {
+    let projectType: ProjectType
+    var derivedData: URL = FileManager.default.homeDirectoryForCurrentUser.appending(component: "/Library/Developer/Xcode/DerivedData/")
+}
+@main
+struct XcodeBSPServer: AsyncParsableCommand {
+    static let name = "XcodeBSPSever"
+    static let version = "1.0.0"
+    static let bspVersion = "2.2.0"
 
-    var logger: Logger = Logger.bsp
-    var eventDispatcher: EventDispatcher
+    @Flag
+    var project = false
 
-    init() {
+    @Flag
+    var workspace = false
+
+    @Option
+    var scheme: String
+
+    mutating func run() async throws {
+        let launchOptions: LaunchOptions 
+        if project {
+            launchOptions = .init(projectType: .project(scheme: scheme))
+        } else if workspace {
+            launchOptions = .init(projectType: .project(scheme: scheme))
+        } else {
+            //default to regular project
+            launchOptions = .init(projectType: .project(scheme: scheme))
+        }
+
+        let bspServer: BSPServer = .init(launchOptions) 
+        BSPServer.shared = bspServer
+
         let connection: JSONRPCClientConnection = .init(.stdioPipe())
         let requestHandler: BSPRequestHandler = .init()
         let notificationHandler: BSPNotificationHandler = .init()
-        let errorHandler: BSPErrorHandler = .init()
-        self.eventDispatcher = .init(connection: connection, requestHandler: requestHandler, notificationHandler: notificationHandler, errorHandler: errorHandler)
-    }
-
-    public func run() async {
+        let errorHandler: BSPErrorHandler = .init(connection: connection)
+        let eventDispatcher: EventDispatcher = .init(connection: connection, requestHandler: requestHandler, notificationHandler: notificationHandler, errorHandler: errorHandler)
         await eventDispatcher.run()
+
+        // Park the main function by sleeping for 10 years.
+        // All request handling is done on other threads and sourcekit-lsp exits by calling `_Exit` when it receives a
+        // shutdown notification.
+        while true {
+            try? await Task.sleep(for: .seconds(60 * 60 * 24 * 365 * 10))
+            Logger.bsp.fault("10 year wait that's parking the main thread expired. Waiting again.")
+        }
     }
 }
