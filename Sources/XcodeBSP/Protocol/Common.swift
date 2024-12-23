@@ -19,11 +19,11 @@ public extension Build {
 
         public let id: Identifier
         public let displayName: String?
-        public let baseDirectory: URL?
+        public let baseDirectory: String?
         public let tags: [Tag]
         public let languageIds: [LanguageIdentifier]
         public let dependencies: [Identifier]
-        public let capabilities: [Capabilities]
+        public let capabilities: Capabilities
     }
 }   
 

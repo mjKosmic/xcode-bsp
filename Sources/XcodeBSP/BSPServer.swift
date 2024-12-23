@@ -12,12 +12,12 @@ public actor BSPServer {
             testProvider: .init(languageIds: [.swift]),
             runProvider: .init(languageIds: [.swift]),
             debugProvider: .init(languageIds: [.swift]),
-            inverseSourcesProvider: false,
-            dependencySourcesProvider: false,
+            inverseSourcesProvider: true,
+            dependencySourcesProvider: true,
             dependencyModulesProvider: false,
             resourcesProvider: false,
             outputPathsProvider: false,
-            buildTargetChangedProvider: false,
+            buildTargetChangedProvider: true,
             canReload: false
         )
     }
@@ -30,6 +30,7 @@ public actor BSPServer {
     var projectBuildLogFolder: String?
     var activityLog: IDEActivityLog?
     private var nativeBuildTargets: [PBXNativeTarget] = []
+    private var xcodeProj: XcodeProj?
     var buildTargets: [Build.Target] {
         var targets: [Build.Target] = []
         for nativeTarget in nativeBuildTargets {
@@ -39,16 +40,19 @@ public actor BSPServer {
                 baseDirectory: nil,
                 tags: [],
                 languageIds: [.swift],
-                dependencies: nativeTarget.dependencies.flatMap { dependency in
+                dependencies: nativeTarget.dependencies.compactMap { dependency in
                     if let uuid = dependency.target?.uuid { 
-                        return .init(uri: "bsp://\(uuid)") 
+                        return .init(uri: "bsp://\(uuid)")
                     }
                     return nil
                 },
-                capabilities: []
+                capabilities: .init(
+                    canCompile: false,
+                    canTest: false,
+                    canRun: false,
+                    canDebug: false
+                )
             )
-
-            Logger.bsp.debug("Build Target: \n\tID: \(target.id.uri, privacy: .public)\n\tName: \(target.displayName ?? "nil", privacy: .public)")
             targets.append(target)
         }
 
@@ -71,6 +75,7 @@ public actor BSPServer {
             self.projectBuildLogFolder = try logFinder.getProjectFolderWithHash(projFileDirString)
             Logger.bsp.debug("Found project build log directory: \(self.projectBuildLogFolder ?? "nil", privacy: .public)")
 
+            try resolveXcodeProj()
             try parseLatestActivityLog()
             try getNativeBuildTargets()
 
@@ -115,13 +120,56 @@ public actor BSPServer {
         self.activityLog = try parser.parseActivityLogInURL(logPathUri, redacted: false, withoutBuildSpecificInformation: false)
     }   
 
-    private func getNativeBuildTargets() throws {
-        Logger.bsp.debug("Getting build targets...")
+    private func resolveXcodeProj() throws {
+        Logger.bsp.debug("Resolving XcodeProj...")
         guard let rootDir = self.xcodeProjPath else { return }
         let filePath = rootDir.absoluteString.replacing("file://", with: "")
-        let xcodeProj: XcodeProj = try .init(pathString: filePath)
-        let targets = xcodeProj.pbxproj.nativeTargets
-        Logger.bsp.debug("Native build targets found: \(targets.count, privacy: .public)")
-        self.nativeBuildTargets = targets
+        self.xcodeProj = try .init(pathString: filePath)
+    }
+
+    private func getNativeBuildTargets() throws {
+        Logger.bsp.debug("Getting build targets...")
+        if self.xcodeProj == nil { try resolveXcodeProj() }
+
+        if let targets = self.xcodeProj?.pbxproj.nativeTargets {
+            Logger.bsp.debug("Native build targets found: \(targets.count, privacy: .public)")
+
+            self.nativeBuildTargets = targets
+        }
+    }
+
+    public func sources(for targetId: Build.Target.Identifier) throws -> [Build.Target.Source.Item] {
+        Logger.bsp.debug("Getting sources for targetId: \(targetId.uri, privacy: .public)")
+        if self.xcodeProj == nil { try resolveXcodeProj() }
+        guard let target = self.nativeBuildTargets.first(where: { $0.uuid == targetId.uri.replacing("bsp://", with: "") }) else { return [] }
+        Logger.bsp.debug("Target Found: \(target.name, privacy: .public)")
+        var sourceFiles: [PBXFileElement]?
+        do {
+            sourceFiles = try target.sourceFiles() 
+        } catch let error as PBXObjectError {
+            Logger.bsp.error("Error getting build target source files: \(error.description)")
+        }
+        if let sourceFiles {
+            var sourceItems: [Build.Target.Source.Item] = []
+                for file in sourceFiles {
+                    guard let _ = file.path else { continue }
+                    if let projectRootDir = self.projectRootDir {
+                        if let filePath = try file.fullPath(sourceRoot: projectRootDir.absoluteString.replacing("file://", with: "")) {
+                            let filePathUri = URL(filePath: filePath)
+                            let item: Build.Target.Source.Item = .init(
+                                uri: filePathUri.absoluteString, 
+                                kind: .file,
+                                generated: false
+                            )
+
+                            sourceItems.append(item)
+                        }
+                    }
+                }
+
+            return sourceItems 
+        }
+
+        return []
     }
 }

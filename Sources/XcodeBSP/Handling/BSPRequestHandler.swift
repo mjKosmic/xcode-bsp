@@ -48,8 +48,25 @@ public actor BSPRequestHandler: RequestHandler {
                 // await handler(.success(nil))
                 await this.handleRequest(id: id, request: request)
             case .buildTargetSources(let params, let handler):
-                // await handler(buildTargetSources(id: id, params: params))
-                await this.handleRequest(id: id, request: request)
+                Logger.bsp.debug("Getting build target sources...")
+                
+                var targetsSources: [Build.Target.Sources.Item] = []
+                for targetId in params.targets {
+                    do {
+                        let targetSources = try await BSPServer.shared.sources(for: targetId)
+                        targetsSources.append(
+                            .init(
+                                target: targetId,
+                                sources: targetSources,
+                                roots: nil
+                            )
+                        )
+                    } catch {
+                        Logger.bsp.error("Error getting sources for build target (\(targetId.uri, privacy: .public)): \(error.localizedDescription, privacy: .public)")
+                    }
+                }
+                let result: Build.Target.Sources.Result = .init(items: targetsSources)
+                await handler(.success(result))
             case .buildTargetInverseSources(let params, let handler):
                 // await handler(buildTargetInverseSources(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
