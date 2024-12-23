@@ -12,7 +12,7 @@ public extension Build.Target {
             /** Either a text document or a directory. A directory entry must end with a forward
              * slash "/" and a directory entry implies that every nested text document within the
              * directory belongs to this source item. */
-            public let uri: String
+            public let uri: URL
             public let kind: Kind
             public let generated: Bool
 

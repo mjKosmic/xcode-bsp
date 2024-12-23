@@ -34,17 +34,15 @@ public actor BSPServer {
     var buildTargets: [Build.Target] {
         var targets: [Build.Target] = []
         for nativeTarget in nativeBuildTargets {
+            guard let targetId = nativeTarget.bspId else { continue }
             let target: Build.Target = .init(
-                id: .init(uri: "bsp://\(nativeTarget.uuid)"),
+                id: .init(uri: targetId),
                 displayName: nativeTarget.name,
                 baseDirectory: nil,
                 tags: [],
                 languageIds: [.swift],
                 dependencies: nativeTarget.dependencies.compactMap { dependency in
-                    if let uuid = dependency.target?.uuid { 
-                        return .init(uri: "bsp://\(uuid)")
-                    }
-                    return nil
+                    return dependency.target?.bspId.flatMap { .init(uri: $0) }
                 },
                 capabilities: .init(
                     canCompile: false,
@@ -71,8 +69,7 @@ public actor BSPServer {
             let logFinder: LogFinder = .init()
             guard let xcodeProjPath: URL = try findXcodeprojDirectory(forProjectRoot: params.rootUri) else { return }
             self.xcodeProjPath = xcodeProjPath
-            let projFileDirString = xcodeProjPath.absoluteString.replacing("file://", with: "")
-            self.projectBuildLogFolder = try logFinder.getProjectFolderWithHash(projFileDirString)
+            self.projectBuildLogFolder = try logFinder.getProjectFolderWithHash(xcodeProjPath.path())
             Logger.bsp.debug("Found project build log directory: \(self.projectBuildLogFolder ?? "nil", privacy: .public)")
 
             try resolveXcodeProj()
@@ -123,8 +120,7 @@ public actor BSPServer {
     private func resolveXcodeProj() throws {
         Logger.bsp.debug("Resolving XcodeProj...")
         guard let rootDir = self.xcodeProjPath else { return }
-        let filePath = rootDir.absoluteString.replacing("file://", with: "")
-        self.xcodeProj = try .init(pathString: filePath)
+        self.xcodeProj = try .init(pathString: rootDir.path())
     }
 
     private func getNativeBuildTargets() throws {
@@ -141,7 +137,7 @@ public actor BSPServer {
     public func sources(for targetId: Build.Target.Identifier) throws -> [Build.Target.Source.Item] {
         Logger.bsp.debug("Getting sources for targetId: \(targetId.uri, privacy: .public)")
         if self.xcodeProj == nil { try resolveXcodeProj() }
-        guard let target = self.nativeBuildTargets.first(where: { $0.uuid == targetId.uri.replacing("bsp://", with: "") }) else { return [] }
+        guard let target = self.nativeBuildTargets.first(where: { $0.bspId == targetId.uri }) else { return [] }
         Logger.bsp.debug("Target Found: \(target.name, privacy: .public)")
         var sourceFiles: [PBXFileElement]?
         do {
@@ -154,10 +150,10 @@ public actor BSPServer {
                 for file in sourceFiles {
                     guard let _ = file.path else { continue }
                     if let projectRootDir = self.projectRootDir {
-                        if let filePath = try file.fullPath(sourceRoot: projectRootDir.absoluteString.replacing("file://", with: "")) {
+                        if let filePath = try file.fullPath(sourceRoot: projectRootDir.path()) {
                             let filePathUri = URL(filePath: filePath)
                             let item: Build.Target.Source.Item = .init(
-                                uri: filePathUri.absoluteString, 
+                                uri: filePathUri, 
                                 kind: .file,
                                 generated: false
                             )
