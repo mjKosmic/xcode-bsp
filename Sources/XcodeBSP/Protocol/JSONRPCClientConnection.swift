@@ -160,8 +160,9 @@ public actor JSONRPCClientConnection: ClientConnection {
                 yield(id: id, request: ClientRequest.debugSessionStart(try decodeRequestParams(data), makeHandler(handler)))
             case .registerForChanges:
                 yield(id: id, request: ClientRequest.registerForChanges(try decodeRequestParams(data), makeHandler(handler)))
+            case .sourceKitOptions:
+                yield(id: id, request: ClientRequest.sourceKitOptions(try decodeRequestParams(data), makeHandler(handler)))
             }
-			
 		} catch {
 		    eventContinuation.yield(.error(error))
 		}

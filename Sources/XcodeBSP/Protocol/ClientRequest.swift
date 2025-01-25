@@ -22,7 +22,7 @@ public enum ClientRequest: Sendable {
         case buildTargetCleanCache = "buildTarget/cleanCache"
         case debugSessionStart = "debugSession/start"
         case registerForChanges = "textDocument/registerForChanges"
-        // case sourceKitOptions = "textDocument/sourceKitOptions"
+        case sourceKitOptions = "textDocument/sourceKitOptions"
     }
 
     case initialize(Initialize.Params, Handler<Initialize.Result>)
@@ -41,6 +41,8 @@ public enum ClientRequest: Sendable {
     case buildTargetCleanCache(Build.Target.CleanCache.Params, Handler<Build.Target.CleanCache.Result>)
     case debugSessionStart(DebugSession.Start.Params, Handler<DebugSession.SessionAddress>)
     case registerForChanges(TextDocument.RegisterForChanges.Params, Handler<VoidResponse>)
+    case sourceKitOptions(TextDocument.SourceKitOptions.Params, Handler<TextDocument.SourceKitOptions.Result>)
+    // case sourceKitOptions(TextDocument.SourceKitOptions.Params, Handler<LSPAny>)
 
     public var method: Method {
         switch self {
@@ -76,6 +78,8 @@ public enum ClientRequest: Sendable {
             return .debugSessionStart
         case .registerForChanges:
             return .registerForChanges
+        case .sourceKitOptions:
+            return .sourceKitOptions
         }
     }
 }

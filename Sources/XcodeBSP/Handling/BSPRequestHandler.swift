@@ -16,12 +16,12 @@ public actor BSPRequestHandler: RequestHandler {
                 // await handler(await initialize(id: id, params: params)) 
                 Logger.bsp.info("Initializing XCode BSP server...")
                 do {
-                    try await BSPServer.shared.initialize(params)
+                    try await XcodeBSPServer.shared.initialize(params)
                     let result: Initialize.Result = .init(
-                        displayName: XcodeBSPServer.name,
-                        version: XcodeBSPServer.version,
-                        bspVersion: XcodeBSPServer.bspVersion,
-                        capabilities: BSPServer.capabilities,
+                        displayName: XcodeBSP.name,
+                        version: XcodeBSP.version,
+                        bspVersion: XcodeBSP.bspVersion,
+                        capabilities: XcodeBSPServer.capabilities,
                         dataKind: "sourceKit",
                         data: .init(
                             indexStorePath: nil, 
@@ -42,7 +42,7 @@ public actor BSPRequestHandler: RequestHandler {
                 exit(0)
             case .workspaceBuildTargets(let handler):
                 Logger.bsp.debug("Fetching workspace build targets")
-                let buildTargets = await BSPServer.shared.buildTargets
+                let buildTargets = await XcodeBSPServer.shared.buildTargets
                 await handler(.success(.init(targets: buildTargets)))
             case .workspaceReload(let handler):
                 // await handler(.success(nil))
@@ -53,7 +53,7 @@ public actor BSPRequestHandler: RequestHandler {
                 var targetsSources: [Build.Target.Sources.Item] = []
                 for targetId in params.targets {
                     do {
-                        let targetSources = try await BSPServer.shared.sources(for: targetId)
+                        let targetSources = try await XcodeBSPServer.shared.sources(for: targetId)
                         targetsSources.append(
                             .init(
                                 target: targetId,
@@ -67,38 +67,41 @@ public actor BSPRequestHandler: RequestHandler {
                 }
                 let result: Build.Target.Sources.Result = .init(items: targetsSources)
                 await handler(.success(result))
-            case .buildTargetInverseSources(let params, let handler):
+            case let .buildTargetInverseSources(params, handler):
                 // await handler(buildTargetInverseSources(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetDependencySources(let params, let handler):
+            case let .buildTargetDependencySources(params, handler):
                 // await handler(buildTargetDependencySources(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetDependencyModules(let params, let handler):
+            case let .buildTargetDependencyModules(params, handler):
                 // await handler(buildTargetDependencyModules(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetResources(let params, let handler):
+            case let .buildTargetResources(params, handler):
                 // await handler(buildTargetResources(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetOutputPaths(let params, let handler):
+            case let .buildTargetOutputPaths(params, handler):
                 // await handler(buildTargetOutputPaths(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetCompile(let params, let handler):
+            case let .buildTargetCompile(params, handler):
                 // await handler(buildTargetCompile(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetRun(let params, let handler):
+            case let .buildTargetRun(params, handler):
                 // await handler(buildTargetRun(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetTest(let params, let handler):
+            case let .buildTargetTest(params, handler):
                 // await handler(buildTargetTest(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .buildTargetCleanCache(let params, let handler):
+            case let .buildTargetCleanCache(params, handler):
                 // await handler(buildTargetCleanCache(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
-            case .debugSessionStart(let params, let handler):
+            case let .debugSessionStart(params, handler):
                 // await handler(debugSessionStart(id: id, params: params))
                 await this.handleRequest(id: id, request: request)
             case let .registerForChanges(params, handler):
                 await this.handleRequest(id: id, request: request)
+            case let .sourceKitOptions(params, handler):
+                let result = await XcodeBSPServer.shared.sourceKitOptions(for: params)
+                await handler(.success(result))
         }
 	}
 }

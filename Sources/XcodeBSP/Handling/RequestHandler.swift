@@ -28,6 +28,8 @@ public protocol RequestHandler: ErrorHandler {
     func buildTargetCleanCache(id: JSONId, params: Build.Target.CleanCache.Params) async -> Response<Build.Target.CleanCache.Result>
     func debugSessionStart(id: JSONId, params: DebugSession.Start.Params) async -> Response<DebugSession.SessionAddress>
     func registerForChanges(id: JSONId, params: TextDocument.RegisterForChanges.Params) async -> Response<VoidResponse>
+    func sourceKitOptions(id: JSONId, params: TextDocument.SourceKitOptions.Params) async -> Response<TextDocument.SourceKitOptions.Result>
+    // func sourceKitOptions(id: JSONId, params: TextDocument.SourceKitOptions.Params) async -> Response<LSPAny>
 }
 
 
@@ -38,38 +40,40 @@ extension RequestHandler {
 
     func defaultHandleRequest(id: JSONId, request: ClientRequest) async {
         switch request {
-            case .initialize(let params, let handler):
+            case let .initialize(params, handler):
                 await handler(await initialize(id: id, params: params)) 
-            case .shutdown(let handler):
+            case let .shutdown(handler):
                 await handler(.success(nil))
-            case .workspaceBuildTargets(let handler):
+            case let .workspaceBuildTargets(handler):
                 await handler(workspaceBuildTargets(id: id))
-            case .workspaceReload(let handler):
+            case let .workspaceReload(handler):
                 await handler(.success(nil))
-            case .buildTargetSources(let params, let handler):
+            case let .buildTargetSources(params, handler):
                 await handler(buildTargetSources(id: id, params: params))
-            case .buildTargetInverseSources(let params, let handler):
+            case let .buildTargetInverseSources(params, handler):
                 await handler(buildTargetInverseSources(id: id, params: params))
-            case .buildTargetDependencySources(let params, let handler):
+            case let .buildTargetDependencySources(params, handler):
                 await handler(buildTargetDependencySources(id: id, params: params))
-            case .buildTargetDependencyModules(let params, let handler):
+            case let .buildTargetDependencyModules(params, handler):
                 await handler(buildTargetDependencyModules(id: id, params: params))
-            case .buildTargetResources(let params, let handler):
+            case let .buildTargetResources(params, handler):
                 await handler(buildTargetResources(id: id, params: params))
-            case .buildTargetOutputPaths(let params, let handler):
+            case let .buildTargetOutputPaths(params, handler):
                 await handler(buildTargetOutputPaths(id: id, params: params))
-            case .buildTargetCompile(let params, let handler):
+            case let .buildTargetCompile(params, handler):
                 await handler(buildTargetCompile(id: id, params: params))
-            case .buildTargetRun(let params, let handler):
+            case let .buildTargetRun(params, handler):
                 await handler(buildTargetRun(id: id, params: params))
-            case .buildTargetTest(let params, let handler):
+            case let .buildTargetTest(params, handler):
                 await handler(buildTargetTest(id: id, params: params))
-            case .buildTargetCleanCache(let params, let handler):
+            case let .buildTargetCleanCache(params, handler):
                 await handler(buildTargetCleanCache(id: id, params: params))
-            case .debugSessionStart(let params, let handler):
+            case let .debugSessionStart(params, handler):
                 await handler(debugSessionStart(id: id, params: params))
             case let .registerForChanges(params, handler):
                 await handler(registerForChanges(id: id, params: params))
+            case let .sourceKitOptions(params, handler):
+                await handler(sourceKitOptions(id: id, params: params))
         }
     }
 }
@@ -94,6 +98,8 @@ public extension RequestHandler {
     func buildTargetCleanCache(id: JSONId, params: Build.Target.CleanCache.Params) async -> Response<Build.Target.CleanCache.Result> { .failure(NotImplementedError) }
     func debugSessionStart(id: JSONId, params: DebugSession.Start.Params) async -> Response<DebugSession.SessionAddress> { .failure(NotImplementedError) }
     func registerForChanges(id: JSONId, params: TextDocument.RegisterForChanges.Params) async -> Response<VoidResponse> { .success(VoidResponse()) }
+    func sourceKitOptions(id: JSONId, params: TextDocument.SourceKitOptions.Params) async -> Response<TextDocument.SourceKitOptions.Result> { .failure(NotImplementedError) }
+    // func sourceKitOptions(id: JSONId, params: TextDocument.SourceKitOptions.Params) async -> Response<LSPAny> { .success(.null) }
 }
 
 
