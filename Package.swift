@@ -25,7 +25,6 @@ let package = Package(
                 .product(name: "XCLogParser", package: "XCLogParser"),
                 .product(name: "XcodeProj", package: "XcodeProj")
             ]
-        ),
-        .testTarget(name: "Xcode-BSPTests"),
+        )
     ]
 )

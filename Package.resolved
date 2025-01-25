@@ -1,5 +1,5 @@
 {
-  "originHash" : "1a00c5601bb67eae0c609fd5bab03ce1b7173ea9033903eec91516c94cd93b31",
+  "originHash" : "7007cb5bd87ac33b408a4e76b183197904187d77cad1d4716958c9a705929336",
   "pins" : [
     {
       "identity" : "aexml",
@@ -42,8 +42,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/ChimeHQ/LanguageServerProtocol",
       "state" : {
-        "revision" : "d51412945ae88ffcab65ec339ca89aed9c9f0b8a",
-        "version" : "0.13.3"
+        "revision" : "587c037f37c3dbcd25ad10ff6017412eb957d22d",
+        "version" : "0.13.4"
       }
     },
     {
@@ -87,8 +87,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/tuist/XcodeProj",
       "state" : {
-        "revision" : "efaaec0d195ce3278980ce1991dd81b1bca42365",
-        "version" : "8.26.0"
+        "revision" : "15b85e6480b8b12ced81e68f39d83a97b7601cfa",
+        "version" : "8.26.4"
       }
     }
   ],
